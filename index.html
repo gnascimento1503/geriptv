@@ -619,6 +619,16 @@
         <input type="text" id="f-app" placeholder="IPTV Smarters, TiviMate...">
       </div>
     </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>MAC Address</label>
+        <input type="text" id="f-mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="17" oninput="formatMac(this)">
+      </div>
+      <div class="form-group">
+        <label>Key / Chave</label>
+        <input type="text" id="f-key" placeholder="XXXX-XXXX-XXXX-XXXX">
+      </div>
+    </div>
     <div style="margin-bottom:6px; padding-bottom:8px; border-bottom:1px solid var(--border);">
       <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Servidores / URLs</label>
     </div>
@@ -885,6 +895,8 @@ function openModal(id = null) {
     document.getElementById('f-status').value = c.status;
     document.getElementById('f-tv').value = c.tv || '';
     document.getElementById('f-app').value = c.app || '';
+    document.getElementById('f-mac').value = c.mac || '';
+    document.getElementById('f-key').value = c.key || '';
     document.getElementById('f-obs').value = c.obs || '';
     renderServidores(c.servidores || [{}]);
   } else {
@@ -896,6 +908,8 @@ function openModal(id = null) {
     document.getElementById('f-status').value = 'pago';
     document.getElementById('f-tv').value = '';
     document.getElementById('f-app').value = '';
+    document.getElementById('f-mac').value = '';
+    document.getElementById('f-key').value = '';
     document.getElementById('f-obs').value = '';
     renderServidores([{}]);
   }
@@ -924,6 +938,8 @@ function salvarCliente() {
     status: document.getElementById('f-status').value,
     tv: document.getElementById('f-tv').value.trim(),
     app: document.getElementById('f-app').value.trim(),
+    mac: document.getElementById('f-mac').value.trim(),
+    key: document.getElementById('f-key').value.trim(),
     obs: document.getElementById('f-obs').value.trim(),
     servidores,
   };
@@ -940,6 +956,12 @@ function salvarCliente() {
   save();
   closeModal();
   renderClientes();
+}
+
+function formatMac(input) {
+  let v = input.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+  v = v.match(/.{1,2}/g)?.join(':') || v;
+  input.value = v.substring(0, 17);
 }
 
 // ─── SERVIDORES ──────────────────────────────────────────────
