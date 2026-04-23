@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IPTV Manager">
+<title>IPTV Manager</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --bg2: #ffffff;
+    --bg3: #eef0f4;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1a1d23;
+    --text2: #6b7280;
+    --text3: #9ca3af;
+    --accent: #0ea572;
+    --accent-dim: rgba(14,165,114,0.10);
+    --accent-dim2: rgba(14,165,114,0.05);
+    --red: #e5344a;
+    --red-dim: rgba(229,52,74,0.10);
+    --amber: #d97706;
+    --amber-dim: rgba(217,119,6,0.10);
+    --blue: #2563eb;
+    --blue-dim: rgba(37,99,235,0.10);
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(244,246,249,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+
+  /* NAV TABS */
+  .nav {
+    display: flex;
+    gap: 2px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .nav-btn:not(.active):hover {
+    color: var(--text);
+    background: var(--border);
+  }
+
+  /* PAGES */
+  .page { display: none; padding: 24px 20px; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* STAT CARDS */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .stat {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat.green::before { background: var(--accent); }
+  .stat.red::before { background: var(--red); }
+  .stat.amber::before { background: var(--amber); }
+  .stat.blue::before { background: var(--blue); }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .stat.green .stat-value { color: var(--accent); }
+  .stat.red .stat-value { color: var(--red); }
+  .stat.amber .stat-value { color: var(--amber); }
+  .stat.blue .stat-value { color: var(--blue); }
+
+  /* SECTION HEADER */
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ALERT CARDS */
+  .alert-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+
+  .alert-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.15s;
+  }
+  .alert-card:hover { border-color: var(--border2); }
+  .alert-card.urgent { border-left: 3px solid var(--red); }
+  .alert-card.warning { border-left: 3px solid var(--amber); }
+  .alert-card.soon { border-left: 3px solid var(--blue); }
+
+  .alert-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .urgent .alert-dot { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .warning .alert-dot { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .soon .alert-dot { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+
+  .alert-info { flex: 1; min-width: 0; }
+  .alert-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .alert-sub { font-size: 12px; color: var(--text2); }
+
+  .alert-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--bg3); border-color: var(--border2); }
+  .btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .btn.primary:hover { filter: brightness(1.1); }
+  .btn.danger { border-color: rgba(255,77,109,0.3); color: var(--red); }
+  .btn.danger:hover { background: var(--red-dim); }
+  .btn.whatsapp { border-color: rgba(37,211,102,0.3); color: #25d366; }
+  .btn.whatsapp:hover { background: rgba(37,211,102,0.1); }
+  .btn.sm { padding: 6px 10px; font-size: 12px; }
+
+  /* CLIENT TABLE */
+  .table-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .table-filters {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 180px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--border2); }
+  .search-input::placeholder { color: var(--text3); }
+
+  .filter-select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 8px 12px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { border-bottom: 1px solid var(--border); }
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 10px 16px;
+  }
+  td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(0,0,0,0.02); }
+
+  .client-name { font-weight: 500; color: var(--text); }
+  .client-phone { color: var(--text2); font-size: 12px; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+  .badge.pago { background: var(--accent-dim); color: var(--accent); }
+  .badge.pendente { background: var(--amber-dim); color: var(--amber); }
+  .badge.vencido { background: var(--red-dim); color: var(--red); }
+
+  .date-cell {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .date-cell.vencendo { color: var(--amber); }
+  .date-cell.vencido { color: var(--red); }
+  .date-cell.ok { color: var(--accent); }
+
+  .actions-cell { display: flex; gap: 6px; align-items: center; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 20px;
+    overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 580px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    animation: modalIn 0.2s ease;
+    margin: auto;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .modal-title {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  .form-group { margin-bottom: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--bg2); }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 22px;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text3);
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-text { font-size: 14px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 300px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-left: 3px solid var(--accent); }
+  .toast.error { border-left: 3px solid var(--red); }
+
+  /* INADIMPLENTES PAGE */
+  .inad-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .inad-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .inad-info { flex: 1; }
+  .inad-name { font-weight: 500; font-size: 14px; margin-bottom: 3px; }
+  .inad-meta { font-size: 12px; color: var(--text2); }
+  .inad-days {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header { padding: 0 14px; }
+    .nav-btn { padding: 6px 10px; font-size: 12px; }
+    .page { padding: 16px 14px; }
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(5), td:nth-child(5) { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">IPTV<span>_</span>MGR</div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="showPage('clientes')">Clientes</button>
+    <button class="nav-btn" onclick="showPage('inadimplentes')">Atrasos</button>
+  </nav>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="stats">
+    <div class="stat green">
+      <div class="stat-label">Ativos</div>
+      <div class="stat-value" id="stat-ativos">0</div>
+    </div>
+    <div class="stat red">
+      <div class="stat-label">Vencidos</div>
+      <div class="stat-value" id="stat-vencidos">0</div>
+    </div>
+    <div class="stat amber">
+      <div class="stat-label">Vencem hoje</div>
+      <div class="stat-value" id="stat-hoje">0</div>
+    </div>
+    <div class="stat blue">
+      <div class="stat-label">Em 7 dias</div>
+      <div class="stat-value" id="stat-em7">0</div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div class="section-title">🔴 Vencidos / Hoje</div>
+  </div>
+  <div class="alert-list" id="alerts-urgent"></div>
+
+  <div class="section-head" style="margin-top:8px;">
+    <div class="section-title">🟡 Próximos 3 dias</div>
+  </div>
+  <div class="alert-list" id="alerts-warning"></div>
+
+  <div class="section-head" style="margin-top:8px;">
+    <div class="section-title">🔵 Próximos 7 dias</div>
+  </div>
+  <div class="alert-list" id="alerts-soon"></div>
+</div>
+
+<!-- CLIENTES -->
+<div class="page" id="page-clientes">
+  <div class="table-wrap">
+    <div class="table-filters">
+      <input type="text" class="search-input" id="search-input" placeholder="Buscar cliente..." oninput="renderClientes()">
+      <select class="filter-select" id="filter-status" onchange="renderClientes()">
+        <option value="">Todos</option>
+        <option value="pago">Pagos</option>
+        <option value="pendente">Pendentes</option>
+        <option value="vencido">Vencidos</option>
+      </select>
+      <button class="btn primary" onclick="openModal()">+ Novo cliente</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Vencimento</th>
+            <th>Plano</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="clientes-tbody"></tbody>
+      </table>
+    </div>
+    <div id="empty-clientes" class="empty" style="display:none;">
+      <div class="empty-icon">📺</div>
+      <div class="empty-text">Nenhum cliente cadastrado ainda</div>
+    </div>
+  </div>
+  <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+    <button class="btn sm" onclick="exportCSV()">⬇ Exportar CSV</button>
+    <button class="btn sm" onclick="importCSV()">⬆ Importar CSV</button>
+    <input type="file" id="import-file" accept=".csv" style="display:none" onchange="handleImport(event)">
+  </div>
+</div>
+
+<!-- INADIMPLENTES -->
+<div class="page" id="page-inadimplentes">
+  <div class="section-head">
+    <div class="section-title">Clientes em atraso</div>
+    <button class="btn sm whatsapp" onclick="whatsappTodos()">📣 Avisar todos</button>
+  </div>
+  <div class="inad-list" id="inad-list"></div>
+  <div id="empty-inad" class="empty" style="display:none;">
+    <div class="empty-icon">✅</div>
+    <div class="empty-text">Nenhum cliente em atraso!</div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Novo cliente</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="f-nome" placeholder="João Silva">
+      </div>
+      <div class="form-group">
+        <label>WhatsApp</label>
+        <input type="tel" id="f-phone" placeholder="5511999999999">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Plano</label>
+        <select id="f-plano">
+          <option value="Mensal">Mensal</option>
+          <option value="Trimestral">Trimestral</option>
+          <option value="Semestral">Semestral</option>
+          <option value="Anual">Anual</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Valor (R$)</label>
+        <input type="number" id="f-valor" placeholder="30" step="0.01">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Vencimento</label>
+        <input type="date" id="f-vencimento">
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="pago">Pago</option>
+          <option value="pendente">Pendente</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Marca da TV</label>
+        <input type="text" id="f-tv" placeholder="Samsung, LG, TCL...">
+      </div>
+      <div class="form-group">
+        <label>Aplicativo</label>
+        <input type="text" id="f-app" placeholder="IPTV Smarters, TiviMate...">
+      </div>
+    </div>
+    <div style="margin-bottom:6px; padding-bottom:8px; border-bottom:1px solid var(--border);">
+      <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Servidores / URLs</label>
+    </div>
+    <div id="servidores-wrap">
+      <!-- renderizado pelo JS -->
+    </div>
+    <button type="button" class="btn sm" style="margin-bottom:14px;" onclick="addServidor()">+ Adicionar servidor</button>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="f-obs" placeholder="Anotações sobre o cliente, equipamento, contrato..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary" onclick="salvarCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PAGAMENTO -->
+<div class="modal-overlay" id="modal-pag">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-title">Registrar pagamento</div>
+    <div class="form-group">
+      <label>Renovar por</label>
+      <select id="pag-plano">
+        <option value="30">30 dias (Mensal)</option>
+        <option value="90">90 dias (Trimestral)</option>
+        <option value="180">180 dias (Semestral)</option>
+        <option value="365">365 dias (Anual)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Valor recebido (R$)</label>
+      <input type="number" id="pag-valor" step="0.01" placeholder="30.00">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closePagModal()">Cancelar</button>
+      <button class="btn primary" onclick="confirmarPagamento()">Confirmar pagamento</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────
+let clientes = JSON.parse(localStorage.getItem('iptv_clientes') || '[]');
+let editId = null;
+let pagClienteId = null;
+
+function save() {
+  localStorage.setItem('iptv_clientes', JSON.stringify(clientes));
+}
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2,4);
+}
+
+// ─── DATE UTILS ──────────────────────────────────────────────
+function today() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function parseDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function formatDate(str) {
+  const [y, m, d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function diffDays(dateStr) {
+  const t = today();
+  const d = parseDate(dateStr);
+  return Math.round((d - t) / 86400000);
+}
+
+function addDays(dateStr, days) {
+  const d = parseDate(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+function todayStr() {
+  return today().toISOString().split('T')[0];
+}
+
+// ─── STATUS AUTO ─────────────────────────────────────────────
+function computeStatus(c) {
+  const diff = diffDays(c.vencimento);
+  if (c.status === 'pago' && diff >= 0) return 'pago';
+  if (diff < 0) return 'vencido';
+  return 'pendente';
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'clientes') renderClientes();
+  if (id === 'inadimplentes') renderInadimplentes();
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────
+function renderDashboard() {
+  const t = todayStr();
+  let ativos = 0, vencidos = 0, hoje = 0, em7 = 0;
+
+  const urgentList = [];
+  const warnList = [];
+  const soonList = [];
+
+  clientes.forEach(c => {
+    const diff = diffDays(c.vencimento);
+    const st = computeStatus(c);
+
+    if (st === 'pago') ativos++;
+    if (st === 'vencido') vencidos++;
+    if (diff === 0) hoje++;
+    if (diff > 0 && diff <= 7) em7++;
+
+    if (diff <= 0) urgentList.push({ ...c, diff });
+    else if (diff <= 3) warnList.push({ ...c, diff });
+    else if (diff <= 7) soonList.push({ ...c, diff });
+  });
+
+  document.getElementById('stat-ativos').textContent = ativos;
+  document.getElementById('stat-vencidos').textContent = vencidos;
+  document.getElementById('stat-hoje').textContent = hoje;
+  document.getElementById('stat-em7').textContent = em7;
+
+  renderAlertList('alerts-urgent', urgentList, 'urgent');
+  renderAlertList('alerts-warning', warnList, 'warning');
+  renderAlertList('alerts-soon', soonList, 'soon');
+}
+
+function renderAlertList(elId, list, cls) {
+  const el = document.getElementById(elId);
+  if (!list.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:10px 4px;">Nenhum cliente nesta faixa</div>';
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const label = c.diff < 0 ? `${Math.abs(c.diff)} dias em atraso` :
+                  c.diff === 0 ? 'Vence hoje!' :
+                  `Vence em ${c.diff} dia${c.diff > 1 ? 's' : ''}`;
+    return `
+      <div class="alert-card ${cls}">
+        <div class="alert-dot"></div>
+        <div class="alert-info">
+          <div class="alert-name">${c.nome}</div>
+          <div class="alert-sub">${label} · ${c.plano} · R$ ${Number(c.valor||0).toFixed(2)}</div>
+        </div>
+        <div class="alert-actions">
+          <button class="btn sm whatsapp" onclick="whatsappCliente('${c.id}','${cls}')">WhatsApp</button>
+          <button class="btn sm primary" onclick="openPagModal('${c.id}')">Pago</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── CLIENTES TABLE ──────────────────────────────────────────
+function renderClientes() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const fs = document.getElementById('filter-status')?.value || '';
+
+  let filtered = clientes.filter(c => {
+    const st = computeStatus(c);
+    const matchQ = !q || c.nome.toLowerCase().includes(q) || (c.phone||'').includes(q);
+    const matchS = !fs || st === fs;
+    return matchQ && matchS;
+  });
+
+  const tbody = document.getElementById('clientes-tbody');
+  const empty = document.getElementById('empty-clientes');
+
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  filtered.sort((a, b) => diffDays(a.vencimento) - diffDays(b.vencimento));
+
+  tbody.innerHTML = filtered.map(c => {
+    const diff = diffDays(c.vencimento);
+    const st = computeStatus(c);
+    const dateCls = diff < 0 ? 'vencido' : diff <= 3 ? 'vencendo' : 'ok';
+    return `
+      <tr>
+        <td>
+          <div class="client-name">${c.nome}${c.obs ? ' <span title="'+c.obs.replace(/"/g,"&quot;")+'" style="font-size:10px;background:var(--blue-dim);color:var(--blue);padding:1px 6px;border-radius:10px;font-weight:600;cursor:help;">OBS</span>' : ''}</div>
+          <div class="client-phone">${c.phone || '—'}</div>
+        </td>
+        <td>
+          <div class="date-cell ${dateCls}">${formatDate(c.vencimento)}</div>
+          <div style="font-size:11px;color:var(--text3);">${diff < 0 ? Math.abs(diff)+'d atraso' : diff === 0 ? 'hoje' : 'em '+diff+'d'}</div>
+        </td>
+        <td><span style="font-size:12px;color:var(--text2);">${c.plano}</span></td>
+        <td><span class="badge ${st}">${st}</span></td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn sm whatsapp" onclick="whatsappCliente('${c.id}','${st}')">WZ</button>
+            <button class="btn sm primary" onclick="openPagModal('${c.id}')">Pago</button>
+            <button class="btn sm" onclick="editCliente('${c.id}')">✏</button>
+            <button class="btn sm danger" onclick="deleteCliente('${c.id}')">✕</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ─── INADIMPLENTES ───────────────────────────────────────────
+function renderInadimplentes() {
+  const vencidos = clientes
+    .filter(c => diffDays(c.vencimento) < 0)
+    .sort((a, b) => diffDays(a.vencimento) - diffDays(b.vencimento));
+
+  const el = document.getElementById('inad-list');
+  const empty = document.getElementById('empty-inad');
+
+  if (!vencidos.length) {
+    el.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  el.innerHTML = vencidos.map(c => {
+    const days = Math.abs(diffDays(c.vencimento));
+    return `
+      <div class="inad-card">
+        <div class="inad-info">
+          <div class="inad-name">${c.nome}</div>
+          <div class="inad-meta">${c.plano} · R$ ${Number(c.valor||0).toFixed(2)} · ${c.phone || 'sem contato'}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="inad-days">-${days}d</div>
+          <button class="btn sm whatsapp" onclick="whatsappCliente('${c.id}','vencido')">WhatsApp</button>
+          <button class="btn sm primary" onclick="openPagModal('${c.id}')">Pago</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── MODAL CLIENTE ───────────────────────────────────────────
+function openModal(id = null) {
+  editId = id;
+  document.getElementById('modal-title').textContent = id ? 'Editar cliente' : 'Novo cliente';
+  if (id) {
+    const c = clientes.find(x => x.id === id);
+    document.getElementById('f-nome').value = c.nome;
+    document.getElementById('f-phone').value = c.phone || '';
+    document.getElementById('f-plano').value = c.plano;
+    document.getElementById('f-valor').value = c.valor || '';
+    document.getElementById('f-vencimento').value = c.vencimento;
+    document.getElementById('f-status').value = c.status;
+    document.getElementById('f-tv').value = c.tv || '';
+    document.getElementById('f-app').value = c.app || '';
+    document.getElementById('f-obs').value = c.obs || '';
+    renderServidores(c.servidores || [{}]);
+  } else {
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-phone').value = '';
+    document.getElementById('f-plano').value = 'Mensal';
+    document.getElementById('f-valor').value = '';
+    document.getElementById('f-vencimento').value = todayStr();
+    document.getElementById('f-status').value = 'pago';
+    document.getElementById('f-tv').value = '';
+    document.getElementById('f-app').value = '';
+    document.getElementById('f-obs').value = '';
+    renderServidores([{}]);
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editId = null;
+}
+
+function salvarCliente() {
+  const nome = document.getElementById('f-nome').value.trim();
+  if (!nome) { showToast('Informe o nome do cliente', 'error'); return; }
+  const venc = document.getElementById('f-vencimento').value;
+  if (!venc) { showToast('Informe a data de vencimento', 'error'); return; }
+
+  const servidores = getServidores();
+
+  const data = {
+    nome,
+    phone: document.getElementById('f-phone').value.trim(),
+    plano: document.getElementById('f-plano').value,
+    valor: document.getElementById('f-valor').value,
+    vencimento: venc,
+    status: document.getElementById('f-status').value,
+    tv: document.getElementById('f-tv').value.trim(),
+    app: document.getElementById('f-app').value.trim(),
+    obs: document.getElementById('f-obs').value.trim(),
+    servidores,
+  };
+
+  if (editId) {
+    const idx = clientes.findIndex(x => x.id === editId);
+    clientes[idx] = { ...clientes[idx], ...data };
+    showToast('Cliente atualizado!', 'success');
+  } else {
+    clientes.push({ id: genId(), ...data });
+    showToast('Cliente cadastrado!', 'success');
+  }
+
+  save();
+  closeModal();
+  renderClientes();
+}
+
+// ─── SERVIDORES ──────────────────────────────────────────────
+function renderServidores(list) {
+  const wrap = document.getElementById('servidores-wrap');
+  wrap.innerHTML = list.map((s, i) => `
+    <div class="servidor-block" data-idx="${i}" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px;position:relative;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Servidor ${i+1}</span>
+        ${list.length > 1 ? `<button type="button" onclick="removeServidor(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;">✕</button>` : ''}
+      </div>
+      <div class="form-group">
+        <label>URL / M3U</label>
+        <input type="text" class="srv-url" placeholder="http://servidor.com:porta/get.php?..." value="${s.url||''}">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Usuário</label>
+          <input type="text" class="srv-user" placeholder="usuario" value="${s.user||''}">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="text" class="srv-pass" placeholder="senha" value="${s.pass||''}">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Servidor / Host</label>
+        <input type="text" class="srv-host" placeholder="servidor.com:8080" value="${s.host||''}">
+      </div>
+    </div>`).join('');
+}
+
+function addServidor() {
+  const list = getServidores();
+  if (list.length >= 4) { showToast('Máximo de 4 servidores', 'error'); return; }
+  list.push({});
+  renderServidores(list);
+}
+
+function removeServidor(idx) {
+  const list = getServidores();
+  list.splice(idx, 1);
+  renderServidores(list);
+}
+
+function getServidores() {
+  const blocks = document.querySelectorAll('.servidor-block');
+  return Array.from(blocks).map(b => ({
+    url:  b.querySelector('.srv-url').value.trim(),
+    user: b.querySelector('.srv-user').value.trim(),
+    pass: b.querySelector('.srv-pass').value.trim(),
+    host: b.querySelector('.srv-host').value.trim(),
+  }));
+}
+
+function editCliente(id) {
+  showPage_direct('clientes');
+  openModal(id);
+}
+
+function deleteCliente(id) {
+  if (!confirm('Remover este cliente?')) return;
+  clientes = clientes.filter(x => x.id !== id);
+  save();
+  renderClientes();
+  showToast('Cliente removido', 'success');
+}
+
+// ─── PAGAMENTO ───────────────────────────────────────────────
+function openPagModal(id) {
+  pagClienteId = id;
+  const c = clientes.find(x => x.id === id);
+  document.getElementById('pag-valor').value = c.valor || '';
+  const planoDays = { Mensal: 30, Trimestral: 90, Semestral: 180, Anual: 365 };
+  document.getElementById('pag-plano').value = planoDays[c.plano] || 30;
+  document.getElementById('modal-pag').classList.add('open');
+}
+
+function closePagModal() {
+  document.getElementById('modal-pag').classList.remove('open');
+  pagClienteId = null;
+}
+
+function confirmarPagamento() {
+  const idx = clientes.findIndex(x => x.id === pagClienteId);
+  const c = clientes[idx];
+  const days = parseInt(document.getElementById('pag-plano').value);
+  const novaData = addDays(todayStr(), days);
+  clientes[idx] = { ...c, status: 'pago', vencimento: novaData };
+  save();
+  closePagModal();
+  showToast(`Renovado até ${formatDate(novaData)}!`, 'success');
+  renderDashboard();
+  renderClientes();
+}
+
+// ─── WHATSAPP ────────────────────────────────────────────────
+function whatsappCliente(id, tipo) {
+  const c = clientes.find(x => x.id === id);
+  if (!c.phone) { showToast('Cliente sem WhatsApp cadastrado', 'error'); return; }
+  const phone = c.phone.replace(/\D/g, '');
+  let msg = '';
+  const diff = diffDays(c.vencimento);
+
+  if (tipo === 'vencido' || diff < 0) {
+    msg = `Olá ${c.nome}! Seu plano IPTV venceu há ${Math.abs(diff)} dia${Math.abs(diff) > 1 ? 's' : ''}. Para renovar e continuar assistindo, entre em contato. Valor: R$ ${Number(c.valor||0).toFixed(2)}.`;
+  } else if (diff === 0) {
+    msg = `Olá ${c.nome}! Seu plano IPTV vence hoje. Para renovar e garantir o acesso, entre em contato. Valor: R$ ${Number(c.valor||0).toFixed(2)}.`;
+  } else {
+    msg = `Olá ${c.nome}! Seu plano IPTV vence em ${diff} dia${diff > 1 ? 's' : ''} (${formatDate(c.vencimento)}). Para renovar e garantir o acesso, entre em contato. Valor: R$ ${Number(c.valor||0).toFixed(2)}.`;
+  }
+
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function whatsappTodos() {
+  const vencidos = clientes.filter(c => diffDays(c.vencimento) < 0 && c.phone);
+  if (!vencidos.length) { showToast('Nenhum vencido com WhatsApp cadastrado', 'error'); return; }
+  vencidos.forEach((c, i) => {
+    setTimeout(() => whatsappCliente(c.id, 'vencido'), i * 800);
+  });
+  showToast(`Abrindo WhatsApp para ${vencidos.length} clientes...`, 'success');
+}
+
+// ─── CSV ─────────────────────────────────────────────────────
+function exportCSV() {
+  const headers = ['id','nome','phone','plano','valor','vencimento','status','login'];
+  const rows = clientes.map(c => headers.map(h => `"${(c[h]||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `iptv_clientes_${todayStr()}.csv`;
+  a.click();
+  showToast('CSV exportado!', 'success');
+}
+
+function importCSV() {
+  document.getElementById('import-file').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const lines = ev.target.result.split('\n').filter(Boolean);
+    const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+    let count = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const vals = lines[i].split(',').map(v => v.replace(/^"|"$/g,'').trim());
+      const obj = {};
+      headers.forEach((h, idx) => obj[h] = vals[idx] || '');
+      if (!obj.nome) continue;
+      if (!obj.id) obj.id = genId();
+      const existing = clientes.findIndex(x => x.id === obj.id);
+      if (existing >= 0) clientes[existing] = obj;
+      else { clientes.push(obj); count++; }
+    }
+    save();
+    renderClientes();
+    showToast(`Importado! ${count} novos clientes.`, 'success');
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ─── UTILS ───────────────────────────────────────────────────
+function showPage_direct(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  const map = { dashboard: 0, clientes: 1, inadimplentes: 2 };
+  if (map[id] !== undefined) btns[map[id]].classList.add('active');
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// fechar modal clicando fora
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById('modal-pag').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closePagModal();
+});
+
+// ─── INIT ────────────────────────────────────────────────────
+renderDashboard();
+
+// service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
